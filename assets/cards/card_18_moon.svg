@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 510" width="100%" height="100%">
+  <defs>
+    <linearGradient id="goldGrad_18" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f7e7a1"/>
+      <stop offset="50%" stop-color="#d4af37"/>
+      <stop offset="100%" stop-color="#8a6c14"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Matte Black Card Base -->
+  <rect width="300" height="510" rx="14" fill="#08080e"/>
+
+  <!-- Outer Double Gold Frame -->
+  <rect x="7" y="7" width="286" height="496" rx="10" stroke="#d4af37" stroke-width="2.5" fill="none"/>
+  <rect x="13" y="13" width="274" height="484" rx="8" stroke="rgba(212,175,55,0.4)" stroke-width="1" fill="none"/>
+
+  <!-- Corner Starburst Embellishments -->
+  <g fill="#d4af37">
+    <polygon points="20,20 23,26 30,26 25,30 27,37 20,32 13,37 15,30 10,26 17,26"/>
+    <polygon points="280,20 283,26 290,26 285,30 287,37 280,32 273,37 275,30 270,26 277,26"/>
+    <polygon points="20,490 23,484 30,484 25,480 27,473 20,478 13,473 15,480 10,484 17,484"/>
+    <polygon points="280,490 283,484 290,484 285,480 287,473 280,478 273,473 275,480 270,484 277,484"/>
+  </g>
+
+  <!-- Top Arch Header with Roman Numeral Circle -->
+  <path d="M 50 65 Q 150 25 250 65" stroke="#d4af37" stroke-width="1.5" fill="none"/>
+  <path d="M 80 50 A 10 10 0 0 1 80 62" stroke="#f7e7a1" stroke-width="1.5" fill="none"/>
+  <path d="M 220 50 A 10 10 0 0 0 220 62" stroke="#f7e7a1" stroke-width="1.5" fill="none"/>
+  
+  <circle cx="150" cy="40" r="16" fill="#08080e" stroke="#d4af37" stroke-width="2"/>
+  <text x="150" y="46" font-family="'Cinzel', serif" font-size="14" font-weight="700" fill="#f7e7a1" text-anchor="middle">XVIII</text>
+
+  <!-- Inner Illustration Arch -->
+  <path d="M 30 160 A 120 120 0 0 1 270 160 L 270 410 L 30 410 Z" stroke="#d4af37" stroke-width="1.5" fill="#0c0c16"/>
+
+  <!-- Starry Background Points -->
+  <g fill="#f7e7a1" opacity="0.6">
+    <circle cx="60" cy="110" r="1"/><circle cx="90" cy="90" r="1.5"/><circle cx="210" cy="95" r="1.5"/><circle cx="240" cy="120" r="1"/>
+    <circle cx="75" cy="150" r="1.5"/><circle cx="225" cy="150" r="1"/><circle cx="150" cy="85" r="1.5"/>
+  </g>
+
+  <!-- Center Artwork Content -->
+  
+        <path d="M 120 130 A 45 45 0 1 0 180 200 A 50 50 0 1 1 120 130 Z" fill="#d4af37"/>
+        <circle cx="150" cy="165" r="40" stroke="#f7e7a1" stroke-width="1.5" fill="none"/>
+        <rect x="40" y="220" width="35" height="140" fill="#0e0e18" stroke="#d4af37" stroke-width="2"/>
+        <rect x="225" y="220" width="35" height="140" fill="#0e0e18" stroke="#d4af37" stroke-width="2"/>
+        <path d="M 95 360 L 105 320 L 115 360 Z" fill="#ffffff"/>
+        <path d="M 185 360 L 195 315 L 205 360 Z" fill="#d4af37"/>
+        <ellipse cx="150" cy="385" rx="70" ry="15" fill="#090912" stroke="#d4af37" stroke-width="1.5"/>
+        <polygon points="150,375 144,385 156,385" fill="#f7e7a1"/>
+    
+
+  <!-- Bottom Divider Line & Typography Banner -->
+  <line x1="30" y1="425" x2="270" y2="425" stroke="#d4af37" stroke-width="1.5"/>
+  
+  <text x="150" y="455" font-family="'Cinzel', serif" font-size="16" font-weight="700" letter-spacing="3" fill="#f7e7a1" text-anchor="middle">THE MOON</text>
+  <text x="150" y="485" font-family="'Noto Serif TC', serif" font-size="18" font-weight="600" letter-spacing="4" fill="#d4af37" text-anchor="middle">月亮</text>
+
+</svg>

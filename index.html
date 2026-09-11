@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#07070a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- Primary SEO Meta Tags -->
+  <title>耀星塔羅 ✦ 22 大阿爾克那線上占卜 | 免費每日塔羅牌靈感指引</title>
+  <meta name="title" content="耀星塔羅 ✦ 22 大阿爾克那線上占卜 | 免費每日塔羅牌靈感指引">
+  <meta name="description" content="【耀星塔羅】免費線上 22 大阿爾克那塔羅牌占卜！提供情感與關係、工作與事業、金錢財運深度解析與聖三角牌陣，黑夜漫漫，耀星為你指引人生航向。">
+  <meta name="keywords" content="塔羅牌, 線上塔羅, 塔羅占卜, 耀星塔羅, 大阿爾克那, 免費占卜, 聖三角牌陣, 愛情塔羅, 工作占卜, 財運占卜, 每日塔羅">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="耀星塔羅">
+  <link rel="canonical" href="https://yaoxing-tarot.vercel.app/">
+
+  <!-- Open Graph / Facebook / LINE -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yaoxing-tarot.vercel.app/">
+  <meta property="og:title" content="耀星塔羅 ✦ 22 大阿爾克那線上占卜">
+  <meta property="og:description" content="黑夜漫漫，耀星為你指引航向。探索 22 大阿爾克那深度啟發與每日靈感指引。">
+  <meta property="og:image" content="https://yaoxing-tarot.vercel.app/assets/cards/card_00_fool.jpg">
+  <meta property="og:site_name" content="耀星塔羅">
+  <meta property="og:locale" content="zh_TW">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://yaoxing-tarot.vercel.app/">
+  <meta property="twitter:title" content="耀星塔羅 ✦ 22 大阿爾克那線上占卜">
+  <meta property="twitter:description" content="黑夜漫漫，耀星為你指引航向。探索 22 大阿爾克那深度啟發與每日靈感指引。">
+  <meta property="twitter:image" content="https://yaoxing-tarot.vercel.app/assets/cards/card_00_fool.jpg">
+
+  <!-- Google JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "耀星塔羅",
+    "url": "https://yaoxing-tarot.vercel.app/",
+    "description": "22 大阿爾克那線上塔羅占卜系統，提供情感、事業、財運專屬靈感指引與聖三角牌陣。",
+    "applicationCategory": "EntertainmentApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "TWD"
+    },
+    "inLanguage": "zh-TW"
+  }
+  </script>
+
+  <!-- Local & System Fallback Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@300;400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@300;400;600;700&display=swap"></noscript>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Animated Star Particle Canvas -->
+  <canvas id="star-canvas"></canvas>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Main Container -->
+  <div class="app-container">
+    
+    <!-- Top Action Bar -->
+    <div class="top-nav-bar">
+      <div class="top-nav-group">
+        <button id="btn-sound-toggle" class="nav-btn" title="切換洗牌/翻牌音效">
+          <span class="nav-icon" id="sound-icon">🔊</span>
+          <span class="nav-label" id="sound-label">音效: 開</span>
+        </button>
+        <button id="btn-bgm-toggle" class="nav-btn active" title="切換神祕背景音樂">
+          <span class="nav-icon" id="bgm-icon">🎶</span>
+          <span class="nav-label" id="bgm-label">神祕音樂: 開</span>
+        </button>
+      </div>
+      <div class="top-nav-group">
+        <button id="btn-open-codex" class="nav-btn">
+          <span class="nav-icon">📖</span>
+          <span class="nav-label">大阿爾克那圖鑑</span>
+        </button>
+        <button id="btn-open-history" class="nav-btn">
+          <span class="nav-icon">📜</span>
+          <span class="nav-label">占卜日誌</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Top Header -->
+    <header class="main-header">
+      <div class="logo-badge">
+        <span class="sparkle">✦</span> YAOXING TAROT ‧ 耀 星 塔 羅 <span class="sparkle">✦</span>
+      </div>
+      <h1 class="brand-title">耀 星 塔 羅</h1>
+      <p class="brand-subtitle">黑 夜 漫 漫 ‧ 耀 星 為 你 指 引 航 向</p>
+      <div class="header-divider">
+        <span class="line"></span>
+        <span class="diamond">◆</span>
+        <span class="line"></span>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+
+      <!-- Controls & Deck Section -->
+      <section class="action-section">
+        
+        <!-- Category Selector Header -->
+        <div class="category-header">
+          <span class="category-title-icon">🔮</span> 第一步：請選擇您欲諮詢的命運主題
+        </div>
+
+        <!-- Category Picker Tabs (4 Categories) -->
+        <div class="category-picker">
+          <button class="category-tab active" data-category="love">
+            <span class="tab-icon">💖</span> 情感與關係
+          </button>
+          <button class="category-tab" data-category="career">
+            <span class="tab-icon">💼</span> 工作與事業
+          </button>
+          <button class="category-tab" data-category="wealth">
+            <span class="tab-icon">💰</span> 金錢與財運
+          </button>
+          <button class="category-tab" data-category="other">
+            <span class="tab-icon">✨</span> 其他問題
+          </button>
+        </div>
+
+        <!-- Custom Question Input Box & Hint Tags -->
+        <div class="custom-question-box">
+          <div class="category-header" style="margin-bottom: 0.6rem; font-size: 0.9rem;">
+            <span class="category-title-icon">✍️</span> 第二步：請輸入您心中想問的事情
+          </div>
+          <div class="question-input-wrapper">
+            <span class="input-icon">✦</span>
+            <input type="text" id="user-custom-question" class="question-input" 
+                   placeholder="點擊下方參考題目，或在此自由輸入您的疑問..." 
+                   maxlength="100" autocomplete="off" />
+          </div>
+          <div class="question-hints-label">💡 點擊下方題目可快速填入：</div>
+          <div class="question-hints" id="question-hints">
+            <!-- Rendered dynamically based on category -->
+          </div>
+        </div>
+
+        <!-- Ad Slot 1: Mid-Page Sponsor Slot (Shaoteng House Tour) -->
+        <div class="ad-sponsor-container ad-slot-mid">
+          <div class="ad-sponsor-badge">
+            <span class="sparkle">✦</span> 贊助商
+          </div>
+          <a href="https://www.youtube.com/@mofylin" target="_blank" rel="noopener noreferrer" class="ad-box-placeholder" id="ad-slot-1">
+            <div class="ad-demo-content">
+              <span class="ad-icon">🔮</span>
+              <span class="ad-text"><strong>贊助商 紹騰看屋</strong> ‧ 點擊前往 YouTube 官方頻道</span>
+            </div>
+          </a>
+        </div>
+
+        <!-- Draw Mode Switcher -->
+        <div class="draw-mode-picker">
+          <span class="mode-label">✦ 抽牌儀式：</span>
+          <div class="mode-tab-group">
+            <button class="mode-tab active" data-mode="interactive">
+              ✨ 直覺親自擇牌
+            </button>
+            <button class="mode-tab" data-mode="auto">
+              ⚡ 快速自動發牌
+            </button>
+          </div>
+        </div>
+
+        <!-- Deck Stage (Stack vs Interactive Fan) -->
+        <div class="deck-stage">
+          
+          <!-- Stack view (Default before shuffle) -->
+          <div class="card-deck-stack" id="deck-stack" title="點擊洗牌">
+            <div class="deck-card c1"></div>
+            <div class="deck-card c2"></div>
+            <div class="deck-card c3"></div>
+            <div class="deck-card c4"></div>
+            <div class="deck-card c5"></div>
+            <div class="deck-glow"></div>
+          </div>
+
+          <!-- Interactive Fan view (Shown after shuffle in interactive mode) -->
+          <div class="deck-fan-stage" id="deck-fan-stage" style="display: none;">
+            <div class="fan-instructions" id="fan-instructions">請直覺選擇 <span id="fan-remaining-count" class="gold-text">3</span> 張牌</div>
+            <div class="deck-fan-container" id="deck-fan-container">
+              <!-- Dynamically generated fan cards -->
+            </div>
+          </div>
+
+          <div class="deck-status" id="deck-status">點擊洗牌按鈕，開啟靈感連結</div>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="button-group">
+          <button id="btn-shuffle" class="btn btn-primary">
+            <span class="btn-icon">✨</span> 開始凝神洗牌
+          </button>
+          <button id="btn-draw" class="btn btn-gold" style="display: none;">
+            <span class="btn-icon">🎴</span> 發牌就位
+          </button>
+          <button id="btn-reveal-all" class="btn btn-outline" style="display: none;">
+            <span class="btn-icon">👁️</span> 揭曉所有牌面
+          </button>
+          <button id="btn-reset" class="btn btn-ghost" style="display: none;">
+            <span class="btn-icon">🔄</span> 重新占卜
+          </button>
+        </div>
+      </section>
+
+      <!-- Spread Display Area -->
+      <section class="spread-section">
+        <div class="spread-container" id="spread-container">
+          <!-- Slots rendered dynamically via JS -->
+        </div>
+      </section>
+
+      <!-- Reading Synthesis Report (Shown after cards are revealed) -->
+      <section class="synthesis-section" id="synthesis-section" style="display: none;">
+        <div class="synthesis-card">
+          <div class="synthesis-header">
+            <span class="sparkle">✦</span>
+            <h2 id="synthesis-title">命 運 靈 感 綜 合 評 析</h2>
+            <span class="sparkle">✦</span>
+          </div>
+          <div class="synthesis-body" id="synthesis-content">
+            <!-- Dynamic synthesis text generated by JS -->
+          </div>
+          <div class="synthesis-actions">
+            <button id="btn-copy-synthesis" class="btn btn-outline">
+              <span class="btn-icon">📋</span> 複製靈感報告
+            </button>
+            <button id="btn-save-synthesis" class="btn btn-primary">
+              <span class="btn-icon">💾</span> 保存至占卜日誌
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer Ad Slot 2: Sponsor Footer Slot (Shaoteng House Tour) -->
+    <footer class="main-footer">
+      <div class="ad-sponsor-container ad-slot-footer">
+        <div class="ad-sponsor-badge">
+          <span class="sparkle">✦</span> 贊助商
+        </div>
+        <a href="https://www.youtube.com/@mofylin" target="_blank" rel="noopener noreferrer" class="ad-box-placeholder" id="ad-slot-2">
+          <div class="ad-demo-content">
+            <span class="ad-icon">⚜️</span>
+            <span class="ad-text"><strong>紹騰看屋 官方頻道</strong> ‧ 點擊前往觀看影片</span>
+          </div>
+        </a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Card Detail Modal Dialog -->
+  <div class="modal-backdrop" id="card-modal" style="display: none;">
+    <div class="modal-card">
+      <button class="modal-close" id="modal-close-btn">&times;</button>
+      <div class="modal-header">
+        <span class="modal-position-tag" id="modal-position-tag">位置解析</span>
+        <h2 class="modal-card-title" id="modal-card-name">愚者</h2>
+        <div class="modal-orient-tag" id="modal-orient-tag">正位</div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-card-visual" id="modal-card-visual">
+          <!-- Card Graphic -->
+        </div>
+        <div class="modal-card-info">
+          <div class="info-group">
+            <label>✦ 關鍵字</label>
+            <p id="modal-keywords" class="gold-text"></p>
+          </div>
+          <div class="info-group">
+            <label>✦ 代表元素</label>
+            <p id="modal-element"></p>
+          </div>
+          <div class="info-group">
+            <label>✦ 靈感啟示</label>
+            <p id="modal-meaning" class="meaning-text"></p>
+          </div>
+          <div class="info-group">
+            <label>✦ 心靈指引</label>
+            <p id="modal-advice" class="advice-text"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tarot Codex Encyclopedia Modal -->
+  <div class="modal-backdrop" id="codex-modal" style="display: none;">
+    <div class="modal-card codex-modal-card">
+      <button class="modal-close" id="codex-close-btn">&times;</button>
+      <div class="modal-header">
+        <span class="modal-position-tag">TAROT CODEX</span>
+        <h2 class="modal-card-title">22 大阿爾克那典藏圖鑑</h2>
+        <p class="modal-subtitle">探索每一張主牌背後的古老象徵、元素與靈魂寓意</p>
+      </div>
+      <div class="codex-filter-bar">
+        <button class="codex-filter-btn active" data-filter="all">全部 (22)</button>
+        <button class="codex-filter-btn" data-filter="火">火元素</button>
+        <button class="codex-filter-btn" data-filter="水">水元素</button>
+        <button class="codex-filter-btn" data-filter="風">風元素</button>
+        <button class="codex-filter-btn" data-filter="土">土元素</button>
+      </div>
+      <div class="codex-grid" id="codex-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- History Log Modal -->
+  <div class="modal-backdrop" id="history-modal" style="display: none;">
+    <div class="modal-card history-modal-card">
+      <button class="modal-close" id="history-close-btn">&times;</button>
+      <div class="modal-header">
+        <span class="modal-position-tag">READING JOURNAL</span>
+        <h2 class="modal-card-title">命 運 靈 感 日 誌</h2>
+        <p class="modal-subtitle">記錄你每一次與宇宙的深刻對話</p>
+      </div>
+      <div class="history-actions-header">
+        <button id="btn-clear-history" class="btn btn-ghost btn-sm">🗑️ 清空所有紀錄</button>
+      </div>
+      <div class="history-list" id="history-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
