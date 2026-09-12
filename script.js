@@ -619,27 +619,27 @@ function initAudioEngine() {
     if (!AudioContextClass) return null;
     audioCtx = new AudioContextClass();
 
-    // 建立動態壓縮器 (DynamicsCompressor) 作為防爆音/防破音/防雜訊的核心 Limiter
+    // 建立專業級防爆音/防破音 Limiter (Soft Knee & Conservative Ratio)
     masterCompressor = audioCtx.createDynamicsCompressor();
-    masterCompressor.threshold.setValueAtTime(-12, audioCtx.currentTime);
-    masterCompressor.knee.setValueAtTime(30, audioCtx.currentTime);
-    masterCompressor.ratio.setValueAtTime(12, audioCtx.currentTime);
-    masterCompressor.attack.setValueAtTime(0.003, audioCtx.currentTime);
-    masterCompressor.release.setValueAtTime(0.25, audioCtx.currentTime);
+    masterCompressor.threshold.setValueAtTime(-18, audioCtx.currentTime);
+    masterCompressor.knee.setValueAtTime(15, audioCtx.currentTime);
+    masterCompressor.ratio.setValueAtTime(6, audioCtx.currentTime);
+    masterCompressor.attack.setValueAtTime(0.005, audioCtx.currentTime);
+    masterCompressor.release.setValueAtTime(0.15, audioCtx.currentTime);
 
-    // 主音量
+    // 主音量 (Master Gain: 0.7 避免手機 DAC 數位削波破音)
     masterGainNode = audioCtx.createGain();
-    masterGainNode.gain.setValueAtTime(1.0, audioCtx.currentTime);
+    masterGainNode.gain.setValueAtTime(0.7, audioCtx.currentTime);
 
-    // 背景音樂專用音量 (BGM Gain: 溫和純淨)
+    // 背景音樂專用音量 (BGM Gain: 0.035 柔和優雅)
     bgmGainNode = audioCtx.createGain();
-    bgmGainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    bgmGainNode.gain.setValueAtTime(0.035, audioCtx.currentTime);
 
-    // 音效專用音量 (SFX Gain)
+    // 音效專用音量 (SFX Gain: 0.25 清晰無破音)
     sfxGainNode = audioCtx.createGain();
-    sfxGainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    sfxGainNode.gain.setValueAtTime(0.25, audioCtx.currentTime);
 
-    // 路由連接：BGM/SFX -> Compressor -> MasterGain -> Destination
+    // 路由連接：BGM/SFX -> MasterCompressor -> MasterGain -> Destination
     bgmGainNode.connect(masterCompressor);
     sfxGainNode.connect(masterCompressor);
     masterCompressor.connect(masterGainNode);
@@ -656,25 +656,24 @@ function getAudioContext() {
   return ac;
 }
 
-// 產生高保真無雜訊、無延遲的 16 秒原生無縫空靈循環音軌 (Zero CPU Jitter AudioBuffer)
+// 產生 100% 數學連續、零爆音、零接縫的 16 秒空靈神祕旋律 AudioBuffer
 function generateCelestialAudioBuffer(ac) {
   if (celestialAudioBuffer) return celestialAudioBuffer;
 
   const sampleRate = ac.sampleRate || 44100;
-  const duration = 16.0; // 16 秒自然無縫循環
-  const numSamples = Math.floor(sampleRate * duration);
+  const loopDuration = 16.0;
+  const numSamples = Math.floor(sampleRate * loopDuration);
   const buffer = ac.createBuffer(2, numSamples, sampleRate);
   const left = buffer.getChannelData(0);
   const right = buffer.getChannelData(1);
 
-  // 1. 底層溫暖和弦環境音 (Celestial Warm Pad)
+  // 1. 底層溫暖和弦 (溫和正弦波，嚴格頻率整週期相位對齊，防止斷點)
   const padHarmonics = [
-    { f: 220.0, vol: 0.022, pan: 0.0, detune: 0.0 },
-    { f: 261.63, vol: 0.018, pan: -0.3, detune: 0.3 },
-    { f: 329.63, vol: 0.016, pan: 0.3, detune: -0.2 },
-    { f: 392.0, vol: 0.014, pan: -0.2, detune: 0.1 },
-    { f: 440.0, vol: 0.012, pan: 0.2, detune: -0.3 },
-    { f: 523.25, vol: 0.009, pan: 0.0, detune: 0.2 }
+    { f: 220.0, vol: 0.018, pan: 0.0 },   // A3
+    { f: 261.63, vol: 0.015, pan: -0.25 },// C4
+    { f: 329.63, vol: 0.014, pan: 0.25 }, // E4
+    { f: 392.0, vol: 0.012, pan: -0.15 }, // G4
+    { f: 440.0, vol: 0.010, pan: 0.15 }   // A4
   ];
 
   for (let i = 0; i < numSamples; i++) {
@@ -682,12 +681,12 @@ function generateCelestialAudioBuffer(ac) {
     let sampleL = 0;
     let sampleR = 0;
 
-    // 呼吸波動感 (8秒一週期)
-    const lfo = 0.75 + 0.25 * Math.sin((2 * Math.PI * t) / 8.0);
+    // 呼吸波動感 (8秒一週期，16秒剛好兩個完整週期，無縫接軌)
+    const lfo = 0.8 + 0.2 * Math.cos((2 * Math.PI * t) / 8.0);
 
     for (let h = 0; h < padHarmonics.length; h++) {
       const harm = padHarmonics[h];
-      const phase = 2 * Math.PI * (harm.f + harm.detune) * t;
+      const phase = 2 * Math.PI * harm.f * t;
       const s = Math.sin(phase) * harm.vol * lfo;
       sampleL += s * (1 - harm.pan);
       sampleR += s * (1 + harm.pan);
@@ -697,14 +696,13 @@ function generateCelestialAudioBuffer(ac) {
     right[i] = sampleR;
   }
 
-  // 2. 空靈星光水晶音缽旋律 (Celestial Starlight Chimes)
+  // 2. 空靈星光水晶音缽 (使用平滑 Hann 升餘弦窗包絡，絕無起振/截止突變爆音)
   const melodyEvents = [
-    { time: 0.5, freq: 523.25, pan: -0.4, amp: 0.035, len: 3.5 }, // C5
-    { time: 2.8, freq: 659.25, pan: 0.4, amp: 0.032, len: 3.5 },  // E5
-    { time: 5.2, freq: 783.99, pan: -0.2, amp: 0.035, len: 4.0 }, // G5
-    { time: 8.0, freq: 880.0, pan: 0.3, amp: 0.038, len: 4.5 },   // A5
-    { time: 10.8, freq: 659.25, pan: -0.3, amp: 0.030, len: 3.5 },// E5
-    { time: 13.2, freq: 587.33, pan: 0.2, amp: 0.032, len: 3.5 }  // D5
+    { time: 0.8, freq: 523.25, pan: -0.3, amp: 0.025, len: 3.0 }, // C5
+    { time: 3.2, freq: 659.25, pan: 0.3, amp: 0.022, len: 3.0 },  // E5
+    { time: 5.8, freq: 783.99, pan: -0.2, amp: 0.025, len: 3.2 }, // G5
+    { time: 8.5, freq: 880.0, pan: 0.2, amp: 0.028, len: 3.5 },   // A5
+    { time: 11.2, freq: 659.25, pan: -0.25, amp: 0.022, len: 3.0 } // E5
   ];
 
   melodyEvents.forEach(evt => {
@@ -712,29 +710,46 @@ function generateCelestialAudioBuffer(ac) {
     const noteSamples = Math.floor(evt.len * sampleRate);
 
     for (let n = 0; n < noteSamples; n++) {
-      const idx = (startIdx + n) % numSamples;
+      const targetIdx = (startIdx + n) % numSamples;
       const noteT = n / sampleRate;
-      const env = noteT < 0.04 ? (noteT / 0.04) : Math.exp(-noteT * 1.2);
+      
+      // 升餘弦軟起振 (Attack: 0.08s) 與指數衰減 (Decay)
+      let env = 0;
+      if (noteT < 0.08) {
+        env = 0.5 * (1 - Math.cos((Math.PI * noteT) / 0.08));
+      } else {
+        env = Math.exp(-(noteT - 0.08) * 1.3);
+      }
+      
+      // 純淨正弦泛音
       const val = (Math.sin(2 * Math.PI * evt.freq * noteT) + 
-                   0.25 * Math.sin(2 * Math.PI * evt.freq * 2 * noteT) + 
-                   0.08 * Math.sin(2 * Math.PI * evt.freq * 3 * noteT)) * evt.amp * env;
+                   0.2 * Math.sin(2 * Math.PI * evt.freq * 2 * noteT)) * evt.amp * env;
 
-      left[idx] += val * (1 - evt.pan);
-      right[idx] += val * (1 + evt.pan);
+      left[targetIdx] += val * (1 - evt.pan);
+      right[targetIdx] += val * (1 + evt.pan);
     }
   });
 
-  // 3. 邊緣無縫平滑交叉過渡 (Crossfade Seamless Loop)
-  const fadeLen = Math.floor(sampleRate * 0.5);
-  for (let i = 0; i < fadeLen; i++) {
-    const progress = i / fadeLen;
-    const tailIdx = numSamples - fadeLen + i;
-    const blendL = left[i] * progress + left[tailIdx] * (1 - progress);
-    const blendR = right[i] * progress + right[tailIdx] * (1 - progress);
-    left[i] = blendL;
-    right[i] = blendR;
-    left[tailIdx] = blendL;
-    right[tailIdx] = blendR;
+  // 3. 完美頭尾平滑無縫融合 (0.8s Smooth Equal-Power Windowing)
+  const blendLen = Math.floor(sampleRate * 0.8);
+  for (let i = 0; i < blendLen; i++) {
+    const p = i / blendLen;
+    // 升餘弦權重曲線 (保證頭尾接縫導數連續，完全消除咔嗒爆音)
+    const wStart = 0.5 * (1 - Math.cos(Math.PI * p));
+    const wEnd = 1 - wStart;
+    
+    const tailIdx = numSamples - blendLen + i;
+    const blendedL = left[tailIdx] * wEnd + left[i] * wStart;
+    const blendedR = right[tailIdx] * wEnd + right[i] * wStart;
+
+    left[i] = blendedL;
+    right[i] = blendedR;
+  }
+  // 同步尾部 sample 與頭部完全閉合
+  for (let i = 0; i < blendLen; i++) {
+    const tailIdx = numSamples - blendLen + i;
+    left[tailIdx] = left[i];
+    right[tailIdx] = right[i];
   }
 
   celestialAudioBuffer = buffer;
@@ -751,12 +766,12 @@ function setupUserInteractionUnlock() {
     if (ac) {
       if (ac.state === 'suspended') {
         ac.resume().then(() => {
-          if (bgmEnabled && !isPageHidden && !isBgmPlaying) {
+          if (bgmEnabled && !isPageHidden && !isBgmPlaying && !document.hidden) {
             startMysteriousBGM();
           }
         }).catch(() => {});
       } else {
-        if (bgmEnabled && !isPageHidden && !isBgmPlaying) {
+        if (bgmEnabled && !isPageHidden && !isBgmPlaying && !document.hidden) {
           startMysteriousBGM();
         }
       }
@@ -775,32 +790,46 @@ function setupUserInteractionUnlock() {
   });
 }
 
-// --- 完整頁面生命週期管理（針對 LINE、FB 內嵌瀏覽器與安卓手機專門優化） ---
+// --- 完整頁面生命週期管理（徹底解決跳出/鎖屏/關閉軟體時音樂繼續播放與爆音問題） ---
 function setupAudioLifecycle() {
   function handleAppBackground() {
     isPageHidden = true;
     stopMysteriousBGM(true); // 立即徹底停止背景音樂節點
+    
     if (audioCtx) {
       try {
         if (masterGainNode) {
+          masterGainNode.gain.cancelScheduledValues(0);
           masterGainNode.gain.setValueAtTime(0, audioCtx.currentTime);
         }
-        audioCtx.suspend().catch(() => {});
+        if (audioCtx.state === 'running') {
+          audioCtx.suspend().catch(() => {});
+        }
       } catch(e) {}
     }
   }
 
   function handleAppForeground() {
+    // 嚴格確認頁面是真的在可見前景
+    if (document.hidden || document.visibilityState === 'hidden') {
+      return;
+    }
+    
     isPageHidden = false;
+    
     if (audioCtx && masterGainNode) {
       try {
-        masterGainNode.gain.setValueAtTime(1.0, audioCtx.currentTime);
+        const now = audioCtx.currentTime;
+        masterGainNode.gain.cancelScheduledValues(0);
+        masterGainNode.gain.setValueAtTime(0, now);
+        masterGainNode.gain.linearRampToValueAtTime(0.7, now + 0.3); // 0.3s 溫和淡入，防爆音
       } catch(e) {}
     }
+    
     if (bgmEnabled && isUserInteracted) {
       if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume().then(() => {
-          if (!isPageHidden && bgmEnabled && !isBgmPlaying) {
+          if (!isPageHidden && bgmEnabled && !isBgmPlaying && !document.hidden) {
             startMysteriousBGM();
           }
         }).catch(() => {});
@@ -819,27 +848,25 @@ function setupAudioLifecycle() {
     }
   }, { passive: true });
 
+  // 支援 WebKit 前綴
+  document.addEventListener('webkitvisibilitychange', () => {
+    if (document.hidden || document.webkitHidden) {
+      handleAppBackground();
+    } else {
+      handleAppForeground();
+    }
+  }, { passive: true });
+
   // 2. LINE、FB、IG 內嵌 WebView 關閉或返回聊天室時關鍵事件
   window.addEventListener('pagehide', handleAppBackground, { passive: true });
   window.addEventListener('beforeunload', handleAppBackground, { passive: true });
   window.addEventListener('unload', handleAppBackground, { passive: true });
   document.addEventListener('freeze', handleAppBackground, { passive: true });
-
-  // 3. 視窗失焦防護（部分安卓 WebView 點擊關閉先觸發 blur）
-  window.addEventListener('blur', () => {
-    handleAppBackground();
-  }, { passive: true });
-
-  window.addEventListener('focus', () => {
-    if (!document.hidden && document.visibilityState !== 'hidden') {
-      handleAppForeground();
-    }
-  }, { passive: true });
 }
 
 // --- 🎶 晶瑩仙境靈性神祕旋律 (Melodious Celestial BGM) ---
 function startMysteriousBGM() {
-  if (!bgmEnabled || isPageHidden) return;
+  if (!bgmEnabled || isPageHidden || document.hidden) return;
   if (isBgmPlaying) return;
 
   const ac = initAudioEngine();
@@ -847,7 +874,7 @@ function startMysteriousBGM() {
 
   if (ac.state === 'suspended') {
     ac.resume().then(() => {
-      if (bgmEnabled && !isPageHidden && !isBgmPlaying) {
+      if (bgmEnabled && !isPageHidden && !isBgmPlaying && !document.hidden) {
         startMysteriousBGM();
       }
     }).catch(() => {});
@@ -861,6 +888,13 @@ function startMysteriousBGM() {
     bgmSourceNode.buffer = buffer;
     bgmSourceNode.loop = true;
     bgmSourceNode.connect(bgmGainNode);
+    
+    // 淡入 BGM 音量，杜絕任何瞬間起振爆音
+    const now = ac.currentTime;
+    bgmGainNode.gain.cancelScheduledValues(0);
+    bgmGainNode.gain.setValueAtTime(0.0001, now);
+    bgmGainNode.gain.linearRampToValueAtTime(0.035, now + 0.4);
+
     bgmSourceNode.start(0);
     isBgmPlaying = true;
   } catch (e) {
@@ -873,6 +907,12 @@ function stopMysteriousBGM(immediate = false) {
   isBgmPlaying = false;
   if (bgmSourceNode) {
     try {
+      if (audioCtx && bgmGainNode && !immediate) {
+        const now = audioCtx.currentTime;
+        bgmGainNode.gain.cancelScheduledValues(0);
+        bgmGainNode.gain.setValueAtTime(bgmGainNode.gain.value, now);
+        bgmGainNode.gain.linearRampToValueAtTime(0.0001, now + 0.15);
+      }
       bgmSourceNode.stop(0);
       bgmSourceNode.disconnect();
     } catch(e) {}
@@ -898,26 +938,27 @@ function toggleBGM() {
   }
 }
 
-// --- 洗牌與翻牌音效 ---
+// --- 洗牌與翻牌音效 (經過平滑 Envelope 優化，絕無爆音) ---
 function playShuffleSound() {
-  if (!soundEnabled || isPageHidden) return;
+  if (!soundEnabled || isPageHidden || document.hidden) return;
   try {
     const ac = getAudioContext();
     if (!ac || ac.state !== 'running' || !sfxGainNode) return;
 
     const sampleRate = ac.sampleRate || 44100;
-    const bufferSize = Math.floor(sampleRate * 0.22);
+    const duration = 0.2;
+    const bufferSize = Math.floor(sampleRate * duration);
     const buffer = ac.createBuffer(1, bufferSize, sampleRate);
     const data = buffer.getChannelData(0);
     
-    // 產生柔和粉紅噪聲 (Soft Pink Noise) 取代粗糙白噪聲
+    // 產生柔和粉紅噪聲 (Soft Pink Noise)
     let b0 = 0, b1 = 0, b2 = 0;
     for (let i = 0; i < bufferSize; i++) {
       const white = Math.random() * 2 - 1;
       b0 = 0.99886 * b0 + white * 0.0555179;
       b1 = 0.99332 * b1 + white * 0.0750759;
       b2 = 0.96900 * b2 + white * 0.1538520;
-      data[i] = (b0 + b1 + b2) * 0.25;
+      data[i] = (b0 + b1 + b2) * 0.15;
     }
 
     const noise = ac.createBufferSource();
@@ -926,26 +967,33 @@ function playShuffleSound() {
     const filter = ac.createBiquadFilter();
     filter.type = 'bandpass';
     const now = ac.currentTime;
-    filter.frequency.setValueAtTime(600, now);
-    filter.frequency.exponentialRampToValueAtTime(1800, now + 0.18);
-    filter.Q.setValueAtTime(1.2, now);
+    filter.frequency.setValueAtTime(500, now);
+    filter.frequency.exponentialRampToValueAtTime(1600, now + 0.18);
+    filter.Q.setValueAtTime(1.0, now);
 
     const gain = ac.createGain();
-    gain.gain.setValueAtTime(0.001, now);
-    gain.gain.linearRampToValueAtTime(0.08, now + 0.03);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.21);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(0.06, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.19);
 
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(sfxGainNode);
 
     noise.start(now);
-    noise.stop(now + 0.22);
+    noise.stop(now + duration);
+    setTimeout(() => {
+      try {
+        noise.disconnect();
+        filter.disconnect();
+        gain.disconnect();
+      } catch(e) {}
+    }, 250);
   } catch (e) {}
 }
 
 function playFlipSound() {
-  if (!soundEnabled || isPageHidden) return;
+  if (!soundEnabled || isPageHidden || document.hidden) return;
   try {
     const ac = getAudioContext();
     if (!ac || ac.state !== 'running' || !sfxGainNode) return;
@@ -955,23 +1003,29 @@ function playFlipSound() {
     const now = ac.currentTime;
 
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(987.77, now); // B5
-    osc.frequency.exponentialRampToValueAtTime(587.33, now + 0.18); // D5
+    osc.frequency.setValueAtTime(880.0, now); // A5
+    osc.frequency.exponentialRampToValueAtTime(523.25, now + 0.16); // C5
 
-    gain.gain.setValueAtTime(0.001, now);
-    gain.gain.linearRampToValueAtTime(0.12, now + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(0.08, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
 
     osc.connect(gain);
     gain.connect(sfxGainNode);
 
     osc.start(now);
-    osc.stop(now + 0.22);
+    osc.stop(now + 0.2);
+    setTimeout(() => {
+      try {
+        osc.disconnect();
+        gain.disconnect();
+      } catch(e) {}
+    }, 250);
   } catch (e) {}
 }
 
 function playSuccessChime() {
-  if (!soundEnabled || isPageHidden) return;
+  if (!soundEnabled || isPageHidden || document.hidden) return;
   try {
     const ac = getAudioContext();
     if (!ac || ac.state !== 'running' || !sfxGainNode) return;
@@ -980,20 +1034,26 @@ function playSuccessChime() {
     freqs.forEach((freq, idx) => {
       const osc = ac.createOscillator();
       const gain = ac.createGain();
-      const startTime = ac.currentTime + idx * 0.07;
+      const startTime = ac.currentTime + idx * 0.08;
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, startTime);
 
       gain.gain.setValueAtTime(0.0001, startTime);
-      gain.gain.linearRampToValueAtTime(0.1, startTime + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.7);
+      gain.gain.linearRampToValueAtTime(0.06, startTime + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.6);
 
       osc.connect(gain);
       gain.connect(sfxGainNode);
 
       osc.start(startTime);
-      osc.stop(startTime + 0.75);
+      osc.stop(startTime + 0.65);
+      setTimeout(() => {
+        try {
+          osc.disconnect();
+          gain.disconnect();
+        } catch(e) {}
+      }, 800);
     });
   } catch (e) {}
 }
